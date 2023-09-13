@@ -6,7 +6,7 @@
 /*   By: ranki <ranki@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/20 16:04:15 by ranki             #+#    #+#             */
-/*   Updated: 2023/09/10 09:42:19 by ranki            ###   ########.fr       */
+/*   Updated: 2023/09/13 22:32:46 by ranki            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,18 +43,23 @@ void	first_step_tokenization(t_groups *groups)
 	while (groups->s && end < strlen(groups->s) && groups->s[end])
 	{
 		if ((end > 1 && groups->s[end - 1] == '\\' && groups->s[end] == '\"'))
+		{
 			end++;
+		}
 		if (s_flag == 0 && groups->s[end] == '\"')
+		{
 			d_flag = (d_flag + 1) % 2;
+		}
 		if (d_flag == 0 && groups->s[end] == '\'')
 			s_flag = (s_flag + 1) % 2;
 		
+		// permet de faire les tokens des groupes en les séparants.
 		if ((groups->s[end] == ' ' || groups->s[end] == '\0' || groups->s[end + 1] == '>'
 			|| groups->s[end] == '>' || groups->s[end + 1] == '\0' || (end > 1 
 			&& groups->s[end - 1] == '>') || groups->s[end] == '<') && (d_flag == 0)
 			&& (s_flag == 0))
 		{
-			while(groups->s[end] == ' ')
+			while(groups->s[end] == ' ' && groups->s[end + 1] == ' ')
 				end++;
 			if (groups->s[end] == '>')
 			{
@@ -68,7 +73,7 @@ void	first_step_tokenization(t_groups *groups)
 			}
 			if (groups->s[end + 1] == '\0')
 				end++;
-			while(groups->s[end] == ' ')
+			while(groups->s[end] == ' ' && groups->s[end + 1] == ' ')
 				end++;
 			tokenadd_back(&(groups->list_token), create_defaut_token(trim_spaces
 					(strdup_like(groups->s, start, end))));

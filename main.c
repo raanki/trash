@@ -6,7 +6,7 @@
 /*   By: ranki <ranki@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/09 13:48:17 by ranki             #+#    #+#             */
-/*   Updated: 2023/09/13 17:07:01 by ranki            ###   ########.fr       */
+/*   Updated: 2023/09/13 22:45:36 by ranki            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,11 @@ int	main(int argc, char **argv, char **env)
 		{
 			add_history(str);
 			current_cmd = main_split(str);
+			printf("current cmd = %s\n", current_cmd->s);
 			if (current_cmd != NULL)
 			{
 				manage_tokenization(current_cmd);
-				//print_groups_list(current_cmd);
+				print_groups_list(current_cmd);
 				if(type_token(&current_cmd) == 0)
 				{
 					printf("';' and '/' aren't managed\n");

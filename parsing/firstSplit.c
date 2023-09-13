@@ -6,7 +6,7 @@
 /*   By: ranki <ranki@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/09 13:47:46 by ranki             #+#    #+#             */
-/*   Updated: 2023/09/13 17:03:31 by ranki            ###   ########.fr       */
+/*   Updated: 2023/09/13 23:00:25 by ranki            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,8 @@ t_groups	*main_split(char *s)
 {
 	int			start;
 	int			end;
+	int			d_flag = 0;
+	int			s_flag = 0;
 	t_groups	*lst;
 	t_groups	*save;
 
@@ -107,76 +109,87 @@ t_groups	*main_split(char *s)
 		end++;
 	if (s[end] == '\0')
 		return (NULL);
-	
+	//echo salut | cat < file1 file2 > file3 "hey ><|" | grep < rea
 	while (s && s[end])
 	{
 		while (s[end] && s[end] != '>' && s[end] != '<' && s[end] != '|')
+		{
+			if (s_flag == 0 && s[end] == '\"')
+				d_flag = (d_flag + 1) % 2;
+			if (d_flag == 0 && s[end] == '\'')
+				s_flag = (s_flag + 1) % 2;
 			end++;
-		if (s[end] == '\0')
-		{
-			if (lst == NULL)
-			{
-				lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end)));
-				save = lst;
-			}
-			else
-			{
-				lst->next = create_defaut_groups(trim_spaces(strdup_like(s, start, end)));
-				lst = lst->next;
-			}
-			return (save);
 		}
-		else if (s[end] == '>' && last_sup(s, end))
+		if (d_flag == 0 && s_flag == 0)
 		{
-			while (s[end] != '|' && s[end] != '\0' && s[end] != '<')
-					end++;
-				end--;
-			if (lst == NULL)
+			if (s[end] == '\0')
 			{
-				lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
-				save = lst;
+				if (lst == NULL)
+				{
+					lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end)));
+					save = lst;
+				}
+				else
+				{
+					lst->next = create_defaut_groups(trim_spaces(strdup_like(s, start, end)));
+					lst = lst->next;
+				}
+				return (save);
 			}
-			else
+			else if (s[end] == '>' && last_sup(s, end))
 			{
-				lst->next = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
-				lst = lst->next;
+				while (s[end] != '|' && s[end] != '\0' && s[end] != '<')
+						end++;
+					end--;
+				if (lst == NULL)
+				{
+					lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
+					save = lst;
+				}
+				else
+				{
+					lst->next = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
+					lst = lst->next;
+				}
+				start = end;
 			}
-			start = end;
+			else if (s[end] == '<' && last_inf(s, end))
+			{
+				while (s[end] != '|' && s[end] != '\0' && s[end] != '>')
+						end++;
+					end--;
+				if (lst == NULL)
+				{
+					lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
+					save = lst;
+				}
+				else
+				{
+					lst->next = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
+					lst = lst->next;
+				}
+				start = end;
+			}
+			else if (s[end] == '|')
+			{
+				if (lst == NULL)
+				{
+					lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end - 1)));
+					save = lst;
+					lst->next = create_defaut_groups(strdup("|"));
+					lst = lst->next;
+				}
+				else
+				{
+					lst->next = create_defaut_groups(strdup("|"));
+					lst = lst->next;
+				}
+				end++;
+				start = end;
+			}
+				end++;
 		}
-		else if (s[end] == '<' && last_inf(s, end))
-		{
-			while (s[end] != '|' && s[end] != '\0' && s[end] != '>')
-					end++;
-				end--;
-			if (lst == NULL)
-			{
-				lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
-				save = lst;
-			}
-			else
-			{
-				lst->next = create_defaut_groups(trim_spaces(strdup_like(s, start, end + 1)));
-				lst = lst->next;
-			}
-			start = end;
-		}
-		else if (s[end] == '|')
-		{
-			if (lst == NULL)
-			{
-				lst = create_defaut_groups(trim_spaces(strdup_like(s, start, end - 1)));
-				save = lst;
-				lst->next = create_defaut_groups(strdup("|"));
-				lst = lst->next;
-			}
-			else
-			{
-				lst->next = create_defaut_groups(strdup("|"));
-				lst = lst->next;
-			}
-			end++;
-			start = end;
-		}
+		else
 			end++;
 	}
 	return (save);
